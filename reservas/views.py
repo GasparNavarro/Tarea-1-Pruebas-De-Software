@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django import forms
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.views.generic import ListView, CreateView, DeleteView
@@ -17,16 +17,29 @@ class ReservaListView(LoginRequiredMixin, ListView):
         ## Mostramos las reservas ordenadas por fecha y bloque, excluyendo las canceladas de la vista principal
         return Reserva.objects.exclude(estado='CANCELADA').order_by('fecha', 'bloque_horario')
 
+
+class ReservaForm(forms.ModelForm):
+    class Meta:
+        model = Reserva
+        fields = ['cliente', 'tecnico', 'fecha', 'bloque_horario', 'descripcion_falla']
+        widgets = {
+            'fecha': forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['fecha'].input_formats = ['%Y-%m-%d']
+
 class ReservaCreateView(LoginRequiredMixin, CreateView):
     model = Reserva
     template_name = 'reservas/form_reserva.html'
     ## Excluimos 'estado' para que el usuario no pueda crear una reserva ya cancelada
-    fields = ['cliente', 'tecnico', 'fecha', 'bloque_horario', 'descripcion_falla']
+    form_class = ReservaForm
     success_url = reverse_lazy('lista_reservas')
 
 class ReservaSoftDeleteView(LoginRequiredMixin, DeleteView):
     model = Reserva
-    template_name = 'reservas/confirmar_cancelacion.html'
+    template_name = 'reservas/confirmas_cancelacion.html'
     success_url = reverse_lazy('lista_reservas')
 
     def form_valid(self, form):
