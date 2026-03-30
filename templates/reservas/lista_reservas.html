@@ -3,7 +3,11 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Reservas Futuras</h2>
-    <a href="{% url 'nueva_reserva' %}" class="btn btn-primary">+ Agendar Reserva</a>
+    <div class="d-flex gap-2">
+        <a href="{% url 'nueva_reserva' %}" class="btn btn-primary">+ Agendar Reserva</a>
+        <a href="{% url 'nuevo_tecnico' %}" class="btn btn-outline-primary">+ Tecnicos</a>
+        <a href="{% url 'nuevo_cliente' %}" class="btn btn-outline-primary">+ Clientes</a>
+    </div>
 </div>
 
 <div class="card shadow-sm">

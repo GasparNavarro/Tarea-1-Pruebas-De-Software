@@ -14,6 +14,7 @@ class Cliente(models.Model):
 
 class Tecnico(models.Model):
     nombre = models.CharField(max_length=100)
+    esta_activo = models.BooleanField(default=True)
 
     def __str__(self):
         return self.nombre
