@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils import timezone
@@ -13,6 +14,7 @@ class Cliente(models.Model):
 
 class Tecnico(models.Model):
     nombre = models.CharField(max_length=100)
+    esta_activo = models.BooleanField(default=True)
 
     def __str__(self):
         return self.nombre
@@ -48,23 +50,44 @@ class Reserva(models.Model):
         y hacer cumplir nuestras reglas de negocio.
         """
         ## Validar que la reserva no sea en el pasado
-        if self.fecha < timezone.now().date():
+        if self.fecha and self.fecha < timezone.now().date():
             raise ValidationError({'fecha': "La fecha de la reserva no puede estar en el pasado."})
 
+        ## Si aún faltan datos requeridos, dejamos que la validación de campos los reporte.
+        if not self.cliente_id or not self.tecnico_id or not self.fecha or not self.bloque_horario:
+            return
+
+        ## Validar que, si la reserva es para hoy, el bloque no haya comenzado ya.
+        ahora_local = timezone.localtime()
+        if self.fecha == ahora_local.date():
+            hora_inicio_bloque = datetime.strptime(self.bloque_horario, '%H:%M').time()
+            if hora_inicio_bloque <= ahora_local.time():
+                raise ValidationError({'bloque_horario': "No se puede reservar un bloque horario que ya comenzó hoy."})
+
         ## Validar superposición de horarios para el mismo técnico
-        superposicion = Reserva.objects.filter(
+        superposicion_tecnico = Reserva.objects.filter(
             tecnico=self.tecnico,
             fecha=self.fecha,
             bloque_horario=self.bloque_horario
         ).exclude(pk=self.pk) ## Excluimos la reserva actual por si la estamos editando
 
         ## Si hay una reserva en ese bloque y no está cancelada, levantamos un error
-        if superposicion.exclude(estado='CANCELADA').exists():
-            raise ValidationError("El técnico ya tiene una reserva activa en este bloque horario y fecha.")
+        if superposicion_tecnico.exclude(estado='CANCELADA').exists():
+            raise ValidationError({'tecnico': "El técnico ya tiene una reserva activa en este bloque horario y fecha."})
+
+        ## Validar que un mismo cliente no tenga dos reservas simultáneas.
+        superposicion_cliente = Reserva.objects.filter(
+            cliente=self.cliente,
+            fecha=self.fecha,
+            bloque_horario=self.bloque_horario
+        ).exclude(pk=self.pk)
+
+        if superposicion_cliente.exclude(estado='CANCELADA').exists():
+            raise ValidationError({'cliente': "El cliente ya tiene una reserva activa en este bloque horario y fecha."})
 
     def save(self, *args, **kwargs):
-        ## Forzamos la ejecución de clean() antes de guardar en la base de datos
-        self.clean()
+        ## full_clean valida campos requeridos y luego ejecuta clean().
+        self.full_clean()
         super().save(*args, **kwargs)
 
     def __str__(self):
