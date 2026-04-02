@@ -1,6 +1,7 @@
 # Sistema de Reservas Técnicas - INF331
 
 Aplicación web para la gestión de reservas de atención técnica.
+Excel Docs Casos de Prueba: https://docs.google.com/spreadsheets/d/1eSTAMHM0fqXE0Xdm4dwN25U1enDkiTKU/edit?gid=364666220#gid=364666220
 
 ## Prerrequisitos
 
