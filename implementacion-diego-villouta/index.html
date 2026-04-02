@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Reservas - Servicio Técnico</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="app-header">
+        <div class="logo">🛠️ Reservas de Electrodomésticos</div>
+        <nav class="app-nav">
+            <button class="nav-btn active" data-tab="reservations">Reservas</button>
+            <button class="nav-btn" data-tab="clients">Clientes</button>
+            <button class="nav-btn" data-tab="technicians">Técnicos</button>
+            <button class="nav-btn" data-tab="categories">Categorías</button>
+        </nav>
+    </header>
+
+    <main class="app-main">
+        <!-- SECCIÓN RESERVAS -->
+        <section id="reservations" class="tab-content active">
+            <div class="section-header">
+                <h2>Gestión de Reservas</h2>
+                <button class="btn-primary" onclick="window.app.openModal('reservationModal')">Nueva Reserva</button>
+            </div>
+            
+            <div class="filters-bar">
+                <input type="text" id="filter-client" placeholder="Filtrar por Cliente...">
+                <input type="text" id="filter-technician" placeholder="Filtrar por Técnico...">
+                <select id="filter-status">
+                    <option value="">Todos los estados</option>
+                    <option value="pending">Pendiente</option>
+                    <option value="completed">Completada</option>
+                    <option value="cancelled">Cancelada</option>
+                    <option value="expired">Expirada</option>
+                </select>
+                <select id="sort-reservations">
+                    <option value="date">Ordenar por Fecha</option>
+                    <option value="client">Ordenar por Cliente (A-Z)</option>
+                    <option value="technician">Ordenar por Técnico (A-Z)</option>
+                </select>
+            </div>
+
+            <div class="table-container">
+                <table id="table-reservations">
+                    <thead>
+                        <tr>
+                            <th>Fecha y Hora</th>
+                            <th>Cliente</th>
+                            <th>Técnico</th>
+                            <th>Categoría</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECCIÓN CLIENTES -->
+        <section id="clients" class="tab-content">
+            <div class="section-header">
+                <h2>Gestión de Clientes</h2>
+                <button class="btn-primary" onclick="window.app.openModal('clientModal')">Nuevo Cliente</button>
+            </div>
+            <div class="table-container">
+                <table id="table-clients">
+                    <thead>
+                        <tr>
+                            <th>RUT</th>
+                            <th>Nombre Completo</th>
+                            <th>Email</th>
+                            <th>Teléfono</th>
+                            <th>Dirección</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECCIÓN TÉCNICOS -->
+        <section id="technicians" class="tab-content">
+            <div class="section-header">
+                <h2>Gestión de Técnicos</h2>
+                <button class="btn-primary" onclick="window.app.openModal('technicianModal')">Nuevo Técnico</button>
+            </div>
+            <div class="table-container">
+                <table id="table-technicians">
+                    <thead>
+                        <tr>
+                            <th>RUT</th>
+                            <th>Nombre Completo</th>
+                            <th>Email</th>
+                            <th>Teléfono</th>
+                            <th>Categorías</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECCIÓN CATEGORÍAS -->
+        <section id="categories" class="tab-content">
+            <div class="section-header">
+                <h2>Categorías de Electrodomésticos</h2>
+                <button class="btn-primary" onclick="window.app.openModal('categoryModal')">Nueva Categoría</button>
+            </div>
+            <div class="table-container">
+                <table id="table-categories">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODALES -->
+    
+    <!-- Modal Cliente -->
+    <div id="clientModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="window.app.closeModal('clientModal')">&times;</span>
+            <h3 id="clientModalTitle">Nuevo Cliente</h3>
+            <form id="form-client" onsubmit="window.app.saveClient(event)">
+                <input type="hidden" id="client-id">
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" id="client-name" maxlength="50" required>
+                </div>
+                <div class="form-group">
+                    <label>Apellido</label>
+                    <input type="text" id="client-lastname" maxlength="50" required>
+                </div>
+                <div class="form-group">
+                    <label>RUT (sin puntos ni guión)</label>
+                    <input type="text" id="client-rut" pattern="^[0-9]{7,8}[0-9kK]$" required title="Ingrese RUT válido (8 o 9 caracteres, sin puntos ni guión)" minlength="8" maxlength="9">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="client-email" required pattern="[^@\s]+@[^@\s]+\.[^@\s]+">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono (8-12 dígitos)</label>
+                    <input type="text" id="client-phone" pattern="^\d{8,12}$" required>
+                </div>
+                <div class="form-group">
+                    <label>Dirección</label>
+                    <input type="text" id="client-address" maxlength="255" required>
+                </div>
+                <button type="submit" class="btn-submit">Guardar Cliente</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Técnico -->
+    <div id="technicianModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="window.app.closeModal('technicianModal')">&times;</span>
+            <h3 id="technicianModalTitle">Nuevo Técnico</h3>
+            <form id="form-technician" onsubmit="window.app.saveTechnician(event)">
+                <input type="hidden" id="technician-id">
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" id="technician-name" maxlength="50" required>
+                </div>
+                <div class="form-group">
+                    <label>Apellido</label>
+                    <input type="text" id="technician-lastname" maxlength="50" required>
+                </div>
+                <div class="form-group">
+                    <label>RUT (sin puntos ni guión)</label>
+                    <input type="text" id="technician-rut" pattern="^[0-9]{7,8}[0-9kK]$" required title="Ingrese RUT válido (8 o 9 caracteres, sin puntos ni guión)" minlength="8" maxlength="9">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="technician-email" required pattern="[^@\s]+@[^@\s]+\.[^@\s]+">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono (8-12 dígitos)</label>
+                    <input type="text" id="technician-phone" pattern="^\d{8,12}$" required>
+                </div>
+                <div class="form-group">
+                    <label>Dirección</label>
+                    <input type="text" id="technician-address" maxlength="255" required>
+                </div>
+                <div class="form-group">
+                    <label>Categorías Soportadas</label>
+                    <div id="technician-categories-list" class="checkbox-list">
+                        <!-- Generado dinámicamente -->
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit">Guardar Técnico</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Categoría -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="window.app.closeModal('categoryModal')">&times;</span>
+            <h3 id="categoryModalTitle">Nueva Categoría</h3>
+            <form id="form-category" onsubmit="window.app.saveCategory(event)">
+                <input type="hidden" id="category-id">
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" id="category-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="category-description" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Guardar Categoría</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Reserva -->
+    <div id="reservationModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="window.app.closeModal('reservationModal')">&times;</span>
+            <h3 id="reservationModalTitle">Nueva Reserva</h3>
+            <form id="form-reservation" onsubmit="window.app.saveReservation(event)">
+                <input type="hidden" id="reservation-id">
+                <div class="form-group">
+                    <label>Fecha y Hora (9:00 AM - 6:00 PM)</label>
+                    <!-- Type datetime-local helps formatting DD/MM/AAAA HH:MM -->
+                    <input type="datetime-local" id="reservation-date" required onkeydown="event.preventDefault()">
+                </div>
+                <div class="form-group">
+                    <label>Cliente</label>
+                    <select id="reservation-client" onchange="window.app.onChangeReservationClient()" required>
+                        <option value="">Seleccione un cliente...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Técnico</label>
+                    <select id="reservation-technician" onchange="window.app.updateReservationCategories()" required>
+                        <option value="">Seleccione un técnico...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Categoría a reparar</label>
+                    <select id="reservation-category" required>
+                        <option value="">Seleccione una categoría...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Dirección (Por defecto la del cliente)</label>
+                    <input type="text" id="reservation-address" maxlength="255" required>
+                </div>
+                <div class="form-group">
+                    <label>Descripción del problema</label>
+                    <textarea id="reservation-description" maxlength="255" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Guardar Reserva</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/store.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
