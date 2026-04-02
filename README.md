@@ -2,7 +2,9 @@
 
 Aplicación web para la gestión de reservas de atención técnica.
 
-Excel Docs Casos de Prueba: https://docs.google.com/spreadsheets/d/1eSTAMHM0fqXE0Xdm4dwN25U1enDkiTKU/edit?gid=364666220#gid=364666220
+Excel Docs Casos de Prueba: https://docs.google.com/spreadsheets/d/1eSTAMHM0fqXE0Xdm4dwN25U1enDkiTKU/edit?gid=364666220#gid=364666220  
+
+Docs Casos de Prueba:https://docs.google.com/document/d/1kTZ7-nbdK8nkOWgnM8er-W39iFz4Dqp5hl83l5eZPHY/edit?tab=t.0
 
 ## Prerrequisitos
 
